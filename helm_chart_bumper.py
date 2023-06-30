@@ -8,18 +8,36 @@ import subprocess
 import yaml
 import os
 import traceback
+import argparse
 
-# Add charts here where it is known that higher versions are not
-# yet stable or that you would like to disable automatic upgrades for
-# EXCLUDED_CHARTS = os.environ.get("EXCLUDE_CHARTS")
-EXCLUDED_CHARTS = []
+# TODO Add proper tag to release-please
+PROGRAM_VERSION = "0.0.1"  # x-release-please-version
+DEFAULT_UPGRADE_STRATEGY = "minor"
 
-# Inject a BUMP_MAJOR env variable if you would like the script to automatically
-# bump major chart versions too. Make sure you inspect the upgrade instructions before merging!
-BUMP_MAJOR = os.environ.get("BUMP_MAJOR") == "true"
+parser = argparse.ArgumentParser(
+    prog="helm_dependency_bumper.py",
+    description="Python script to upgrade the dependencies of an Helm chart.",
+    add_help=False,
+)
+parser.add_argument('-d', '--dry-run', action='store_true',
+                    help="Show which dependencies will be upgraded but do not execute the upgrade.")
+parser.add_argument('-h', '--help', action='help', help="Show this help message and exit.")
+parser.add_argument('-s', '--upgrade_strategy', choices=['major', 'minor', 'patch'],
+                    default=f"{DEFAULT_UPGRADE_STRATEGY}",
+                    type=str, help=f"Choose the Helm dependency upgrade strategy. "
+                                   f"\'major\' will upgrade to the absolute latest version available (i.e. *.*.*), "
+                                   f"\'minor\' will upgrade to the latest minor version available (i.e. X.*.*) and "
+                                   f"\'patch\' will upgrade to the latest patch version available (i.e. X.Y.*). "
+                                   f"Defaults to {DEFAULT_UPGRADE_STRATEGY}.")
+parser.add_argument('-v', '--version', action='version', version=f"%(prog)s {PROGRAM_VERSION}",
+                    help="Show program\"s version number and exit.")
+parser.add_argument('-c', '--chart', default='.', type=str, help="Path to the Helm chart. Defaults to the current "
+                                                                 "directory.")
+
+args = parser.parse_args()
 
 
-def generate_updatecli_manifest(path_chart: str):
+def generate_updatecli_manifest(path_chart: str, upgrade_strategy: str):
     # Open the Chart.yaml file and transform it to a Python object the script can work with.
     # TODO Consider adding a variable to define the Chart.yaml name? Or it is canonical?
     with open(path_chart + "/Chart.yaml") as f:
@@ -38,13 +56,18 @@ def generate_updatecli_manifest(path_chart: str):
         return
 
     for i, dependency in enumerate(chart["dependencies"]):
-
-        if dependency['name'] in EXCLUDED_CHARTS:
-            print(f"Skipping {dependency['name']} because it is excluded..")
-            continue
+        # TODO Maybe add list of charts to exclude as a program argument
+        # if dependency['name'] in EXCLUDED_CHARTS:
+        #     print(f"Skipping {dependency['name']} because it is excluded..")
+        #     continue
 
         # TODO Define here if we can implement a way to do a major, minor or patch only
-        version = f"{dependency['version'].split('.')[0]}.*.*" if not BUMP_MAJOR else "*.*.*"
+        parse_versions = {
+            "major": "*.*.*",
+            "minor": f"{dependency['version'].split('.')[0]}.*.*",
+            "patch": f"{dependency['version'].split('.')[0]}.{dependency['version'].split('.')[1]}.*",
+        }
+        version = parse_versions[f"{upgrade_strategy}"]
 
         manifest['sources'][f"{dependency['name']}_repository_update"] = {
             "name": f"Find latest version available in the Helm repository",
@@ -52,7 +75,11 @@ def generate_updatecli_manifest(path_chart: str):
             "spec": {
                 "url": dependency['repository'],
                 "name": dependency['name'],
-                "version": version,
+                "versionfilter": {
+                    "kind": "semver",
+                    "pattern": version,
+                    "strict": True
+                }
             }
         }
 
@@ -81,13 +108,11 @@ def run_updatecli_manifest(dry_run: bool):
 
 
 if __name__ == "__main__":
+    # Test if Updatecli is installed
+    try:
+        subprocess.check_call(['updatecli'], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
+    except OSError:
+        print("\nCould not find the updatecli executable.\nPlease make sure it is installed and added to $PATH.")
 
-    # loop through all the charts and use updatecli
-    # to bump the chart versions if a newer version exists
-    paths = Path("charts")
-    for path in paths.iterdir():
-        try:
-            generate_updatecli_manifest(str(path.absolute()))
-        except Exception as e:
-            print(f"Failed processing chart {path}")
-            print(traceback.format_exc())
+    generate_updatecli_manifest(str(Path(args.chart).absolute()), args.upgrade_strategy)
+    run_updatecli_manifest(args.dry_run)
