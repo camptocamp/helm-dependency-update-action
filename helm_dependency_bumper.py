@@ -1,6 +1,5 @@
 """
-Simple Python script that is used in GitHub actions to
-automatically bump chart dependencies using the Updatecli CLI tool.
+Simple Python script that is used in a GitHub Action to automatically bump chart dependencies using the Updatecli tool.
 """
 
 from pathlib import Path
