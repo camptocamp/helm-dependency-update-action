@@ -1,0 +1,6 @@
+= helm-dependency-upgrade-action
+
+// TODO Add proper .gitignore
+// TODO Add proper changelog and release please process
+// TODO Add acknolegements on the README
+// TODO Add a proper License
