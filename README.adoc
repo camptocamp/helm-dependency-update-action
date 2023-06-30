@@ -4,3 +4,10 @@
 // TODO Add proper changelog and release please process
 // TODO Add acknolegements on the README
 // TODO Add a proper License
+
+// TODO Add assumptions and limitations
+//  - Only works with updatecli installed
+//  - Expects a chart YAML file
+//  - Does not support a folder with multiple charts
+//  - Versions are expected to be in the format x.x.x without a v prefix and without any other characters like ^ or ~
+//  - Only works with Helm 3
