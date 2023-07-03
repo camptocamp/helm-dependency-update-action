@@ -6,6 +6,7 @@ ARG UPDATECLI_VERSION=0.54.0
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     curl \
+    git \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Updatecli
@@ -18,7 +19,10 @@ RUN python3 -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
 # Install Python dependencies
-COPY requirements.txt .
+COPY requirements.txt /requirements.txt
 RUN pip install -r requirements.txt
 
-CMD [ "python3", "helm_chart_bumper.py" ]
+COPY entrypoint.sh /entrypoint.sh
+COPY helm_dependency_bumper.py /helm_dependency_bumper.py
+
+ENTRYPOINT [ "/entrypoint.sh" ]

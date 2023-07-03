@@ -1,0 +1,32 @@
+name: "Helm Dependencies Upgrader"
+description: "GitHub Action to upgrade Helm dependencies on a Helm folder."
+
+inputs:
+  chart-path:
+    description: "Path to the Helm chart folder."
+    required: true
+  upgrade-strategy:
+    description: "Upgrade strategy to use. Valid values are 'major', 'minor' or 'patch'."
+    required: false
+    default: "minor"
+  excluded-dependencies:
+    description: "Comma-separated list of dependencies to exclude from upgrade."
+    required: false
+    default: ""
+  dry-run:
+    description: "Run action and upgrades but do not perform them."
+    required: false
+    default: "false"
+
+outputs:
+  upgraded:
+    description: "Boolean indicating whether any dependencies were upgraded."
+
+runs:
+  using: docker
+  image: Dockerfile
+  args:
+    - ${{ inputs.dry-run }}
+    - ${{ inputs.chart-path }}
+    - ${{ inputs.upgrade-strategy }}
+    - ${{ inputs.excluded-dependencies }}

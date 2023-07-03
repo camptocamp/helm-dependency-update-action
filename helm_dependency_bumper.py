@@ -3,10 +3,11 @@ Simple Python script that is used in a GitHub Action to automatically bump chart
 """
 
 from pathlib import Path
+import argparse
 import subprocess
+import sys
 import yaml
 import traceback
-import argparse
 
 # TODO Add proper tag to release-please
 PROGRAM_VERSION = "0.0.1"  # x-release-please-version
@@ -20,7 +21,7 @@ parser = argparse.ArgumentParser(
 parser.add_argument('-d', '--dry-run', action='store_true',
                     help="Show which dependencies will be upgraded but do not execute the upgrade.")
 parser.add_argument('-h', '--help', action='help', help="Show this help message and exit.")
-parser.add_argument('-s', '--upgrade_strategy', choices=['major', 'minor', 'patch'],
+parser.add_argument('-s', '--upgrade-strategy', choices=['major', 'minor', 'patch'],
                     default=f"{DEFAULT_UPGRADE_STRATEGY}", type=str,
                     help=f"Choose the Helm dependency upgrade strategy. "
                          f"\'major\' will upgrade to the absolute latest version available (i.e. *.*.*), "
@@ -31,9 +32,9 @@ parser.add_argument('-v', '--version', action='version', version=f"%(prog)s {PRO
                     help="Show program's version number and exit.")
 parser.add_argument('-c', '--chart', default='.', type=str, help="Path to the Helm chart. Defaults to the current "
                                                                  "directory.")
-parser.add_argument('-e', '--exclude-dependency', action='append', default=None,
-                    help="List the dependencies you want to exclude from the update script. Each dependency should be "
-                         "declared separately (e.g. `-e dependency1 -e dependency2`).")
+parser.add_argument('-e', '--exclude-dependency', nargs='?', default=[],
+                    help="List the dependencies you want to exclude from the update script. Should be a "
+                         "comma-separated list.")
 
 args = parser.parse_args()
 
@@ -108,15 +109,19 @@ if __name__ == "__main__":
         subprocess.check_call(['updatecli'], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
     except OSError:
         print("\nCould not find the updatecli executable.\nPlease make sure it is installed and added to $PATH.")
-    else:
-        try:
-            generate_updatecli_manifest(str(Path(args.chart).absolute()), args.exclude_dependency,
-                                        args.upgrade_strategy)
-        except Exception:
-            print(f"Failed while processing the chart {args.chart}.")
-            print(traceback.format_exc())
-        try:
-            run_updatecli_manifest(args.dry_run)
-        except Exception:
-            print("Error when executing updatecli.")
-            print(traceback.format_exc())
+        sys.exit(1)
+
+    try:
+        generate_updatecli_manifest(str(Path(args.chart).absolute()), args.exclude_dependency,
+                                    args.upgrade_strategy)
+    except Exception:
+        print(f"Failed while processing the chart in '{args.chart}'.")
+        print(traceback.format_exc())
+        sys.exit(1)
+
+    try:
+        run_updatecli_manifest(args.dry_run)
+    except Exception:
+        print("Error when executing updatecli.")
+        print(traceback.format_exc())
+        sys.exit(1)
