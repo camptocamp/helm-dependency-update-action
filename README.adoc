@@ -1,13 +1,41 @@
 = helm-dependency-upgrade-action
 
+A GitHub Action to upgrade Helm dependencies of a given chart.
+
+The action is nothing but a Python wrapper that iterates over every dependency in a `Chart.yaml` to generate a `manifest.yaml` that is then used by https://www.updatecli.io/[Updatecli] to perform the upgrade of the dependencies.
+
+== Usage
+
+[source,yaml]
+----
+
+----
+
+// TODO Finish the usage documentation, list inputs and outputs, etc.
+
+== Assumptions
+
+- The action expects a root path to a single chart and the directory must contain a `Chart.yaml` file.
+- The versions of the dependencies are expected to be in the format `x.x.x` without a `v` prefix and without any other characters like `^` or `~`.
+- It is possible to use the Python script without the said action, but it requires to have https://www.updatecli.io/[Updatecli] installed on the environment in which it is executed.
+
+== Acknowledgements
+
+The Python script on which this action is based upon is inspired by https://blog.promaton.com/how-to-set-up-automated-helm-chart-upgrades-e292192a9aad[this blog post].
+
+Also note https://github.com/sgibson91/bump-helm-deps-action[this other GitHub action] that exists. We decided to create our own action because that action seems to only support an upgrade to the latest version without the possibility of pinning to minor or patch versions. Besides, we wanted to use https://www.updatecli.io/[Updatecli] to perform the upgrade of the dependencies, in order to avoid having to develop all the Python logic needed to parse the `index.yaml`.
+
+== References
+
+The following references were used to create this action:
+- https://docs.github.com/en/actions/creating-actions/creating-a-docker-container-action
+- https://docs.github.com/en/actions/creating-actions/metadata-syntax-for-github-actions
+- https://blog.promaton.com/how-to-set-up-automated-helm-chart-upgrades-e292192a9aad
+- https://pythonspeed.com/articles/activate-virtualenv-dockerfile/
+
+
+
 // TODO Add proper .gitignore
 // TODO Add proper changelog and release please process
-// TODO Add acknolegements on the README
-// TODO Add a proper License
-
-// TODO Add assumptions and limitations
-//  - Only works with updatecli installed
-//  - Expects a chart YAML file
-//  - Does not support a folder with multiple charts
-//  - Versions are expected to be in the format x.x.x without a v prefix and without any other characters like ^ or ~
 //  - Only works with Helm 3
+
