@@ -5,7 +5,6 @@ Simple Python script that is used in a GitHub Action to automatically bump chart
 from pathlib import Path
 import subprocess
 import yaml
-import os
 import traceback
 import argparse
 
@@ -22,23 +21,25 @@ parser.add_argument('-d', '--dry-run', action='store_true',
                     help="Show which dependencies will be upgraded but do not execute the upgrade.")
 parser.add_argument('-h', '--help', action='help', help="Show this help message and exit.")
 parser.add_argument('-s', '--upgrade_strategy', choices=['major', 'minor', 'patch'],
-                    default=f"{DEFAULT_UPGRADE_STRATEGY}",
-                    type=str, help=f"Choose the Helm dependency upgrade strategy. "
-                                   f"\'major\' will upgrade to the absolute latest version available (i.e. *.*.*), "
-                                   f"\'minor\' will upgrade to the latest minor version available (i.e. X.*.*) and "
-                                   f"\'patch\' will upgrade to the latest patch version available (i.e. X.Y.*). "
-                                   f"Defaults to {DEFAULT_UPGRADE_STRATEGY}.")
+                    default=f"{DEFAULT_UPGRADE_STRATEGY}", type=str,
+                    help=f"Choose the Helm dependency upgrade strategy. "
+                         f"\'major\' will upgrade to the absolute latest version available (i.e. *.*.*), "
+                         f"\'minor\' will upgrade to the latest minor version available (i.e. X.*.*) and "
+                         f"\'patch\' will upgrade to the latest patch version available (i.e. X.Y.*). "
+                         f"Defaults to {DEFAULT_UPGRADE_STRATEGY}.")
 parser.add_argument('-v', '--version', action='version', version=f"%(prog)s {PROGRAM_VERSION}",
-                    help="Show program\"s version number and exit.")
+                    help="Show program's version number and exit.")
 parser.add_argument('-c', '--chart', default='.', type=str, help="Path to the Helm chart. Defaults to the current "
                                                                  "directory.")
+parser.add_argument('-e', '--exclude-dependency', action='append', default=None,
+                    help="List the dependencies you want to exclude from the update script. Each dependency should be "
+                         "declared separately (e.g. `-e dependency1 -e dependency2`).")
 
 args = parser.parse_args()
 
 
-def generate_updatecli_manifest(path_chart: str, upgrade_strategy: str):
+def generate_updatecli_manifest(path_chart: str, excluded_dependencies: list, upgrade_strategy: str):
     # Open the Chart.yaml file and transform it to a Python object the script can work with.
-    # TODO Consider adding a variable to define the Chart.yaml name? Or it is canonical?
     with open(path_chart + "/Chart.yaml") as f:
         yaml_content = f.read()
     chart: dict = yaml.safe_load(yaml_content)
@@ -55,12 +56,10 @@ def generate_updatecli_manifest(path_chart: str, upgrade_strategy: str):
         return
 
     for i, dependency in enumerate(chart["dependencies"]):
-        # TODO Maybe add list of charts to exclude as a program argument
-        # if dependency['name'] in EXCLUDED_CHARTS:
-        #     print(f"Skipping {dependency['name']} because it is excluded..")
-        #     continue
+        if dependency['name'] in excluded_dependencies:
+            print(f"Skipping {dependency['name']} because it is excluded..")
+            continue
 
-        # TODO Define here if we can implement a way to do a major, minor or patch only
         parse_versions = {
             "major": "*.*.*",
             "minor": f"{dependency['version'].split('.')[0]}.*.*",
@@ -99,19 +98,25 @@ def generate_updatecli_manifest(path_chart: str, upgrade_strategy: str):
 
 
 def run_updatecli_manifest(dry_run: bool):
-    if dry_run:
-        subprocess.check_output("updatecli diff --config manifest.yaml".split(" "))
-    else:
-        subprocess.check_output("updatecli apply --config manifest.yaml".split(" "))
+    subprocess.check_output(f"updatecli {'diff' if dry_run else 'apply'} --config manifest.yaml".split(" "))
     return
 
 
 if __name__ == "__main__":
-    # Test if Updatecli is installed
     try:
+        # Test if Updatecli is installed
         subprocess.check_call(['updatecli'], stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
     except OSError:
         print("\nCould not find the updatecli executable.\nPlease make sure it is installed and added to $PATH.")
-
-    generate_updatecli_manifest(str(Path(args.chart).absolute()), args.upgrade_strategy)
-    run_updatecli_manifest(args.dry_run)
+    else:
+        try:
+            generate_updatecli_manifest(str(Path(args.chart).absolute()), args.exclude_dependency,
+                                        args.upgrade_strategy)
+        except Exception:
+            print(f"Failed while processing the chart {args.chart}.")
+            print(traceback.format_exc())
+        try:
+            run_updatecli_manifest(args.dry_run)
+        except Exception:
+            print("Error when executing updatecli.")
+            print(traceback.format_exc())
