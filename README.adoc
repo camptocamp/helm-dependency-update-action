@@ -6,6 +6,8 @@ The action is nothing but a Python wrapper that iterates over every dependency i
 
 == Usage
 
+Below you will find a sample workflow that uses this action.
+
 [source,yaml]
 ----
 
@@ -39,3 +41,4 @@ The following references were used to create this action:
 // TODO Add proper changelog and release please process
 //  - Only works with Helm 3
 
+// TODO On caller workflow we need to add the conditional pull request step, input variable on workflow dispatch to dry-run, set upgrade-strategy and set exclusions

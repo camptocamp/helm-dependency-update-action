@@ -9,7 +9,6 @@ import sys
 import yaml
 import traceback
 
-# TODO Add proper tag to release-please
 PROGRAM_VERSION = "0.0.1"  # x-release-please-version
 DEFAULT_UPGRADE_STRATEGY = "minor"
 

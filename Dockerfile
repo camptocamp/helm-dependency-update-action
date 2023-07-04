@@ -13,6 +13,8 @@ RUN apt-get update && \
 RUN curl -sL -o /tmp/updatecli_amd64.deb https://github.com/updatecli/updatecli/releases/download/v0.54.0/updatecli_amd64.deb && \
     apt install /tmp/updatecli_amd64.deb
 
+# TODO Maybe install Helm also?
+
 # Create the virtualenv and add it to the path
 ENV VIRTUAL_ENV=/opt/venv
 RUN python3 -m venv $VIRTUAL_ENV
