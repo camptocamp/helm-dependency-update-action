@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.0](https://github.com/camptocamp/helm-dependency-upgrade-action/compare/v0.0.1...v0.1.0) (2023-07-04)
+
+
+### Features
+
+* small changes to docs and renamed output ([7c927f2](https://github.com/camptocamp/helm-dependency-upgrade-action/commit/7c927f27c3160c019050195b8d0d59b42f074978))
+
 ## 0.0.1 (2023-07-04)
 
 
