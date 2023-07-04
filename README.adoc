@@ -25,11 +25,12 @@ Below you will find a sample workflow that uses this action.
 
 The Python script on which this action is based upon is inspired by https://blog.promaton.com/how-to-set-up-automated-helm-chart-upgrades-e292192a9aad[this blog post].
 
-Also note https://github.com/sgibson91/bump-helm-deps-action[this other GitHub action] that exists. We decided to create our own action because that action seems to only support an upgrade to the latest version without the possibility of pinning to minor or patch versions. Besides, we wanted to use https://www.updatecli.io/[Updatecli] to perform the upgrade of the dependencies, in order to avoid having to develop all the Python logic needed to parse the `index.yaml`.
+Also note https://github.com/sgibson91/bump-helm-deps-action[this other GitHub action] that exists. We decided to create our own action because that one seems to only support an upgrade to the latest version without the possibility of pinning to minor or patch versions. Besides, we wanted to use https://www.updatecli.io/[Updatecli] to perform the upgrade of the dependencies, in order to avoid having to develop all the Python logic needed to parse the `index.yaml` provided in Helm repositories.
 
 == References
 
 The following references were used to create this action:
+
 - https://docs.github.com/en/actions/creating-actions/creating-a-docker-container-action
 - https://docs.github.com/en/actions/creating-actions/metadata-syntax-for-github-actions
 - https://blog.promaton.com/how-to-set-up-automated-helm-chart-upgrades-e292192a9aad

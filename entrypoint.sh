@@ -13,6 +13,6 @@ fi
 
 # Return a boolean indicating whether the any dependency was upgraded
 upgraded=$( [[ `git status --porcelain` ]] && echo true || echo false )
-echo "upgraded=$upgraded" >> $GITHUB_OUTPUT
+echo "chart-upgraded=$upgraded" >> $GITHUB_OUTPUT
 
 exit 0
