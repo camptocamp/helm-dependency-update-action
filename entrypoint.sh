@@ -3,8 +3,7 @@
 # Add the "--dry-run" flag if the dry-run argument is "true"
 dry_run=$( [ $1 == "true" ] && echo "--dry-run" || echo "" )
 
-# python3 /helm_dependency_bumper.py --chart $2 --upgrade-strategy $3 $dry_run
-python3 helm_dependency_bumper.py $dry_run --chart $2 --upgrade-strategy $3 --exclude-dependency $4
+python3 /helm_dependency_bumper.py $dry_run --chart $2 --upgrade-strategy $3 --exclude-dependency $4
 
 # Exit with error code if the Python script fails
 if [ $(echo $?) ]; then
