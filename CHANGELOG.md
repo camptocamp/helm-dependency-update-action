@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.3](https://github.com/camptocamp/helm-dependency-upgrade-action/compare/v0.1.2...v0.1.3) (2023-07-05)
+
+
+### Bug Fixes
+
+* fix git issue with file ownership inside the workspace ([9db06d0](https://github.com/camptocamp/helm-dependency-upgrade-action/commit/9db06d082875471a70e822a50d7184473230e315))
+
 ## [0.1.2](https://github.com/camptocamp/helm-dependency-upgrade-action/compare/v0.1.1...v0.1.2) (2023-07-05)
 
 
