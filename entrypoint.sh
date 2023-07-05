@@ -14,4 +14,11 @@ fi
 # Remove the manifest so it is not committed to the repository
 rm manifest.yaml
 
+# Set up the workspace directory as a safe directory for Git otherwise the git command will fail
+git config --global --add safe.directory /github/workspace
+
+# Return a boolean indicating whether the any dependency was upgraded
+upgraded=$( [[ `git status --porcelain` ]] && echo true || echo false )
+echo "chart-upgraded=$upgraded" >> $GITHUB_OUTPUT
+
 exit 0
