@@ -6,7 +6,6 @@ ARG UPDATECLI_VERSION=0.54.0
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     curl \
-    git \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Updatecli
