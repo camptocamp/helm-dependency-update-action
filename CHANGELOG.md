@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.4](https://github.com/camptocamp/helm-dependency-upgrade-action/compare/v0.1.3...v0.1.4) (2023-07-05)
+
+
+### Bug Fixes
+
+* remove the output as it was posing more problems than solutions ([cf7637d](https://github.com/camptocamp/helm-dependency-upgrade-action/commit/cf7637dc1906577e377848e9fc66223a60a7c5be))
+
 ## [0.1.3](https://github.com/camptocamp/helm-dependency-upgrade-action/compare/v0.1.2...v0.1.3) (2023-07-05)
 
 
