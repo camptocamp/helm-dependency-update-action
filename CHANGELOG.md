@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.2](https://github.com/camptocamp/helm-dependency-upgrade-action/compare/v0.1.1...v0.1.2) (2023-07-05)
+
+
+### Bug Fixes
+
+* correct error correction condition in entrypoint.sh ([26ac098](https://github.com/camptocamp/helm-dependency-upgrade-action/commit/26ac098a3629992745ef1635112420d4aea1054f))
+
 ## [0.1.1](https://github.com/camptocamp/helm-dependency-upgrade-action/compare/v0.1.0...v0.1.1) (2023-07-05)
 
 
