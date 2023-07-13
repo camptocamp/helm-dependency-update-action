@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.0](https://github.com/camptocamp/helm-dependency-upgrade-action/compare/v0.1.5...v0.2.0) (2023-07-13)
+
+
+### Features
+
+* add support to generate outputs and update README.adoc ([87c5777](https://github.com/camptocamp/helm-dependency-upgrade-action/commit/87c5777559c46e88881fd148e698644c272e2fe3))
+
 ## [0.1.5](https://github.com/camptocamp/helm-dependency-upgrade-action/compare/v0.1.4...v0.1.5) (2023-07-05)
 
 
