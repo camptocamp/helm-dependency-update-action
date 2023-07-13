@@ -5,6 +5,11 @@ inputs:
   chart-path:
     description: "Path to the Helm chart folder."
     required: true
+  readme-path:
+    description: "Path to a README.adoc with AsciiDoc attributes in the format ':<DEPENDENCY_NAME>-chart-version: 
+    <DEPENDENCY_VERSION>' that will be updated in the event of an upgrade."
+    required: false
+    default: ""
   upgrade-strategy:
     description: "Upgrade strategy to use. Valid values are 'major', 'minor' or 'patch'."
     required: false
@@ -19,14 +24,17 @@ inputs:
     default: "false"
 
 outputs:
-  chart-upgraded:
+  is-updated:
     description: "Boolean indicating whether any dependencies were upgraded."
+  is-major:
+    description: "Boolean indicating at least one of the dependencies was subject to a major upgrade."
 
 runs:
   using: docker
   image: Dockerfile
   args:
     - ${{ inputs.dry-run }}
+    - ${{ inputs.readme-path }}
     - ${{ inputs.chart-path }}
     - ${{ inputs.upgrade-strategy }}
     - ${{ inputs.excluded-dependencies }}

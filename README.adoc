@@ -40,6 +40,4 @@ The following references were used to create this action:
 
 // TODO Add proper .gitignore
 // TODO Add proper changelog and release please process
-//  - Only works with Helm 3
-
 // TODO On caller workflow we need to add the conditional pull request step, input variable on workflow dispatch to dry-run, set upgrade-strategy and set exclusions

@@ -6,14 +6,11 @@ ARG UPDATECLI_VERSION=0.54.0
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     curl \
-    git \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Updatecli
 RUN curl -sL -o /tmp/updatecli_amd64.deb https://github.com/updatecli/updatecli/releases/download/v0.54.0/updatecli_amd64.deb && \
     apt install /tmp/updatecli_amd64.deb
-
-# TODO Maybe install Helm also?
 
 # Create the virtualenv and add it to the path
 ENV VIRTUAL_ENV=/opt/venv
