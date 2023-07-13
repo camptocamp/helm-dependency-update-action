@@ -6,8 +6,7 @@ inputs:
     description: "Path to the Helm chart folder."
     required: true
   readme-path:
-    description: "Path to a README.adoc with AsciiDoc attributes in the format ':<DEPENDENCY_NAME>-chart-version: 
-    <DEPENDENCY_VERSION>' that will be updated in the event of an upgrade."
+    description: "Path to a README.adoc with AsciiDoc attributes in the format ':<DEPENDENCY_NAME>-chart-version: <DEPENDENCY_VERSION>' that will be updated in the event of an upgrade."
     required: false
     default: ""
   upgrade-strategy:
