@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.1](https://github.com/camptocamp/helm-dependency-upgrade-action/compare/v0.2.0...v0.2.1) (2023-07-13)
+
+
+### Bug Fixes
+
+* remove separate line for description ([b8e1934](https://github.com/camptocamp/helm-dependency-upgrade-action/commit/b8e193439fb9a95e62d87862cf31a4f95128b30b))
+
 ## [0.2.0](https://github.com/camptocamp/helm-dependency-upgrade-action/compare/v0.1.5...v0.2.0) (2023-07-13)
 
 

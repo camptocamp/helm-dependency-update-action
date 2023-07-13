@@ -11,7 +11,7 @@ import sys
 import traceback
 import yaml
 
-PROGRAM_VERSION = "0.2.0"  # x-release-please-version
+PROGRAM_VERSION = "0.2.1"  # x-release-please-version
 DEFAULT_UPGRADE_STRATEGY = "minor"
 
 parser = argparse.ArgumentParser(
