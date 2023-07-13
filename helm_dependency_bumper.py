@@ -135,41 +135,17 @@ def check_upgrade_type(old_chart_dict: dict, new_chart_dict: dict) -> UpgradeTyp
 
     upgrade = UpgradeType.NONE
 
-    print("## before_loop ##")
     for i in range(len(old_chart_dict['dependencies'])):
-        print(f"## before_patch_{i} ##")
-        print(f"upgrade < UpgradeType.PATCH - {upgrade < UpgradeType.PATCH}")
-        print(f"{old_chart_dict['dependencies'][i]['version'].split('.')[2]}"
-              f" < "
-              f"{new_chart_dict['dependencies'][i]['version'].split('.')[2]}")
-        print(f"patch comp - {old_chart_dict['dependencies'][i]['version'].split('.')[2] < new_chart_dict['dependencies'][i]['version'].split('.')[2]}")
-        if upgrade < UpgradeType.PATCH and old_chart_dict['dependencies'][i]['version'].split('.')[2] < \
-                new_chart_dict['dependencies'][i]['version'].split('.')[2]:
-            print(f"## patch_{i} ##")
+        if upgrade < UpgradeType.PATCH and int(old_chart_dict['dependencies'][i]['version'].split('.')[2]) < \
+                int(new_chart_dict['dependencies'][i]['version'].split('.')[2]):
             upgrade = UpgradeType.PATCH
-        print(f"## before_minor_{i} ##")
-        print(f"upgrade < UpgradeType.MINOR - {upgrade < UpgradeType.MINOR}")
-        print(f"{old_chart_dict['dependencies'][i]['version'].split('.')[1]}"
-              f" < "
-              f"{new_chart_dict['dependencies'][i]['version'].split('.')[1]}")
-        print(f"minor comp - {old_chart_dict['dependencies'][i]['version'].split('.')[1] < new_chart_dict['dependencies'][i]['version'].split('.')[1]}")
-        if upgrade < UpgradeType.MINOR and old_chart_dict['dependencies'][i]['version'].split('.')[1] < \
-                new_chart_dict['dependencies'][i]['version'].split('.')[1]:
-            print(f"minor_{i}")
+        if upgrade < UpgradeType.MINOR and int(old_chart_dict['dependencies'][i]['version'].split('.')[1]) < \
+                int(new_chart_dict['dependencies'][i]['version'].split('.')[1]):
             upgrade = UpgradeType.MINOR
-        print(f"## before_major_{i} ##")
-        print(f"upgrade < UpgradeType.MAJOR - {upgrade < UpgradeType.MAJOR}")
-        print(f"{old_chart_dict['dependencies'][i]['version'].split('.')[0]}"
-              f" < "
-              f"{new_chart_dict['dependencies'][i]['version'].split('.')[0]}")
-        print(f"major comp - {old_chart_dict['dependencies'][i]['version'].split('.')[0] < new_chart_dict['dependencies'][i]['version'].split('.')[0]}")
-        if upgrade < UpgradeType.MAJOR and old_chart_dict['dependencies'][i]['version'].split('.')[0] < \
-                new_chart_dict['dependencies'][i]['version'].split('.')[0]:
-            print(f"## major_{i} ##")
+        if upgrade < UpgradeType.MAJOR and int(old_chart_dict['dependencies'][i]['version'].split('.')[0]) < \
+                int(new_chart_dict['dependencies'][i]['version'].split('.')[0]):
             # No need to continue testing if we already found out that there was a major upgrade, so just return MAJOR.
             return UpgradeType.MAJOR
-        print(f"## end_{i} ##")
-    print("## after_loop ##")
 
     return upgrade
 
