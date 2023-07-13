@@ -2,6 +2,7 @@
 Simple Python script that is used in a GitHub Action to automatically bump chart dependencies using the Updatecli tool.
 """
 
+from enum import IntEnum
 from pathlib import Path
 import argparse
 import fileinput
@@ -46,6 +47,13 @@ parser.add_argument('-d', '--dry-run', action='store_true',
                     help="Run updatecli in dry-run mode.")
 
 args = parser.parse_args()
+
+
+class UpgradeType(IntEnum):
+    NONE = 0
+    PATCH = 1
+    MINOR = 2
+    MAJOR = 3
 
 
 def read_chart_yaml(path: str) -> dict:
@@ -119,46 +127,63 @@ def sort_dependencies(old_chart_dict: dict, new_chart_dict: dict):
     new_chart_dict['dependencies'].sort(key=lambda k: k['name'])
 
 
-def is_updated(old_chart_dict: dict, new_chart_dict: dict) -> bool:
+def check_upgrade_type(old_chart_dict: dict, new_chart_dict: dict) -> UpgradeType:
     sort_dependencies(old_chart_dict, new_chart_dict)
 
     if len(old_chart_dict['dependencies']) != len(new_chart_dict['dependencies']):
         raise ValueError("Not the same number of dependencies on both charts.")
 
-    # Compare the versions of each dependency, starting from the smallest to biggest.
+    upgrade = UpgradeType.NONE
+
+    print("## before_loop ##")
     for i in range(len(old_chart_dict['dependencies'])):
-        if old_chart_dict['dependencies'][i]['version'].split('.')[2] < \
+        print(f"## before_patch_{i} ##")
+        print(f"upgrade < UpgradeType.PATCH - {upgrade < UpgradeType.PATCH}")
+        print(f"{old_chart_dict['dependencies'][i]['version'].split('.')[2]}"
+              f" < "
+              f"{new_chart_dict['dependencies'][i]['version'].split('.')[2]}")
+        print(f"patch comp - {old_chart_dict['dependencies'][i]['version'].split('.')[2] < new_chart_dict['dependencies'][i]['version'].split('.')[2]}")
+        if upgrade < UpgradeType.PATCH and old_chart_dict['dependencies'][i]['version'].split('.')[2] < \
                 new_chart_dict['dependencies'][i]['version'].split('.')[2]:
-            return True
-        elif old_chart_dict['dependencies'][i]['version'].split('.')[1] < \
+            print(f"## patch_{i} ##")
+            upgrade = UpgradeType.PATCH
+        print(f"## before_minor_{i} ##")
+        print(f"upgrade < UpgradeType.MINOR - {upgrade < UpgradeType.MINOR}")
+        print(f"{old_chart_dict['dependencies'][i]['version'].split('.')[1]}"
+              f" < "
+              f"{new_chart_dict['dependencies'][i]['version'].split('.')[1]}")
+        print(f"minor comp - {old_chart_dict['dependencies'][i]['version'].split('.')[1] < new_chart_dict['dependencies'][i]['version'].split('.')[1]}")
+        if upgrade < UpgradeType.MINOR and old_chart_dict['dependencies'][i]['version'].split('.')[1] < \
                 new_chart_dict['dependencies'][i]['version'].split('.')[1]:
-            return True
-        elif old_chart_dict['dependencies'][i]['version'].split('.')[0] < \
+            print(f"minor_{i}")
+            upgrade = UpgradeType.MINOR
+        print(f"## before_major_{i} ##")
+        print(f"upgrade < UpgradeType.MAJOR - {upgrade < UpgradeType.MAJOR}")
+        print(f"{old_chart_dict['dependencies'][i]['version'].split('.')[0]}"
+              f" < "
+              f"{new_chart_dict['dependencies'][i]['version'].split('.')[0]}")
+        print(f"major comp - {old_chart_dict['dependencies'][i]['version'].split('.')[0] < new_chart_dict['dependencies'][i]['version'].split('.')[0]}")
+        if upgrade < UpgradeType.MAJOR and old_chart_dict['dependencies'][i]['version'].split('.')[0] < \
                 new_chart_dict['dependencies'][i]['version'].split('.')[0]:
-            return True
-        else:
-            continue
+            print(f"## major_{i} ##")
+            # No need to continue testing if we already found out that there was a major upgrade, so just return MAJOR.
+            return UpgradeType.MAJOR
+        print(f"## end_{i} ##")
+    print("## after_loop ##")
 
-    # Return false in the case that none of the dependencies had an update.
-    return False
+    return upgrade
 
 
-def is_major(old_chart_dict: dict, new_chart_dict: dict) -> bool:
-    sort_dependencies(old_chart_dict, new_chart_dict)
-
-    if len(old_chart_dict['dependencies']) != len(new_chart_dict['dependencies']):
-        raise ValueError("Not the same number of dependencies on both charts.")
-
-    # Compare the versions of each dependency.
-    for i in range(len(old_chart_dict['dependencies'])):
-        if old_chart_dict['dependencies'][i]['version'].split('.')[0] < \
-                new_chart_dict['dependencies'][i]['version'].split('.')[0]:
-            return True
-        else:
-            continue
-
-    # Return false in the case that none of the dependencies had a major upgrade.
-    return False
+def translate_upgrade_type(upgrade: UpgradeType) -> str:
+    match upgrade:
+        case UpgradeType.NONE:
+            return "none"
+        case UpgradeType.PATCH:
+            return "patch"
+        case UpgradeType.MINOR:
+            return "minor"
+        case UpgradeType.MAJOR:
+            return "major"
 
 
 def read_versions(chart: dict) -> dict:
@@ -175,13 +200,6 @@ def update_asciidoc_attributes(path: str, versions_dict: dict):
         for line in fileinput.input(path, inplace=True):
             if line.contains(f":{x}-chart-version:"):
                 print(f":{x}-chart-version: {versions_dict[x]}")
-
-
-def error_exit(message: str, enable_traceback=False):
-    print(message)
-    if enable_traceback:
-        print(traceback.format_exc())
-    sys.exit(1)
 
 
 if __name__ == "__main__":
@@ -230,23 +248,21 @@ if __name__ == "__main__":
         print(traceback.format_exc())
         sys.exit(1)
 
-    is_major_bool = is_major(old_chart, new_chart)
-    is_updated_bool = is_updated(old_chart, new_chart)
+    upgrade_type = check_upgrade_type(old_chart, new_chart)
 
     # Create the file containing the outputs if demanded by the user. Does not run
     if not args.dry_run and args.output:
         output_path = str(Path(args.output).absolute())
         try:
             with open(output_path, "w") as output_file:
-                output_file.write(f"is-major={'true' if is_major_bool else 'false'}\n")
-                output_file.write(f"is-updated={'true' if is_updated_bool else 'false'}\n")
+                output_file.write(f"upgrade-type={translate_upgrade_type(upgrade_type)}\n")
         except Exception:
             print(f"Failed to create file with the outputs.")
             print(traceback.format_exc())
             sys.exit(1)
 
     # Update a *.adoc if a path is given
-    if not args.dry_run and args.update_readme and is_updated_bool:
+    if not args.dry_run and args.update_readme and upgrade_type:
         readme_path = str(Path(args.update_readme).absolute())
         versions = read_versions(new_chart)
         try:
@@ -255,6 +271,6 @@ if __name__ == "__main__":
             print(f"Could not find the *.adoc file in '{args.update_readme}'.")
             sys.exit(1)
         except Exception:
-            error_exit(f"Failed to write versions to the *.adoc in '{args.update_readme}'.")
+            print(f"Failed to write versions to the *.adoc in '{args.update_readme}'.")
             print(traceback.format_exc())
             sys.exit(1)
