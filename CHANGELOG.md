@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.3.0](https://github.com/camptocamp/helm-dependency-upgrade-action/compare/v0.2.1...v0.3.0) (2023-07-14)
+
+
+### Features
+
+* rework the output to consider all cases in a single output ([fd5a89b](https://github.com/camptocamp/helm-dependency-upgrade-action/commit/fd5a89b69cd6275b5de8aeb8032ae45bcbb741c6))
+
+
+### Bug Fixes
+
+* add sort to the attribute function and small cleanup ([13f351f](https://github.com/camptocamp/helm-dependency-upgrade-action/commit/13f351f1ec696a5366d8044d64036809523bc36a))
+* correct the function to output new versions to README.adoc ([c88c25b](https://github.com/camptocamp/helm-dependency-upgrade-action/commit/c88c25bb2c75f9b43fe28b82539abf6cea1816ce))
+
 ## [0.2.1](https://github.com/camptocamp/helm-dependency-upgrade-action/compare/v0.2.0...v0.2.1) (2023-07-13)
 
 
