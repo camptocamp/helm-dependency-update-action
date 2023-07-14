@@ -23,10 +23,8 @@ inputs:
     default: "false"
 
 outputs:
-  is-updated:
-    description: "Boolean indicating whether any dependencies were upgraded."
-  is-major:
-    description: "Boolean indicating at least one of the dependencies was subject to a major upgrade."
+  upgrade-type:
+    description: "String containing the upgrade type that was effectively performed. Outputs one of the following values: 'none', 'patch', 'minor' or 'major'."
 
 runs:
   using: docker
