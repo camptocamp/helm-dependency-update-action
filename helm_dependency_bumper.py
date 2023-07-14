@@ -229,7 +229,7 @@ if __name__ == "__main__":
     # Create the file containing the outputs if demanded by the user.
     # Although it would be simpler to just use an environment variable to output this single output, the approach
     # using an output file should be more scalable.
-    if not args.dry_run and args.output:
+    if args.output:
         output_path = str(Path(args.output).absolute())
         try:
             with open(output_path, "w") as output_file:
