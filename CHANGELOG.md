@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.3](https://github.com/camptocamp/helm-dependency-upgrade-action/compare/v0.3.2...v0.3.3) (2023-07-14)
+
+
+### Bug Fixes
+
+* always output even if in dry-run ([5475c56](https://github.com/camptocamp/helm-dependency-upgrade-action/commit/5475c563119347e1c563a8c6090ab1f7d3b4c5dc))
+
 ## [0.3.2](https://github.com/camptocamp/helm-dependency-upgrade-action/compare/v0.3.1...v0.3.2) (2023-07-14)
 
 
