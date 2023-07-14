@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.2](https://github.com/camptocamp/helm-dependency-upgrade-action/compare/v0.3.1...v0.3.2) (2023-07-14)
+
+
+### Bug Fixes
+
+* add management of empty exclusion variable ([7f1dea5](https://github.com/camptocamp/helm-dependency-upgrade-action/commit/7f1dea5cb8cbe21d2a8331b799d58ba36ea99e30))
+
 ## [0.3.1](https://github.com/camptocamp/helm-dependency-upgrade-action/compare/v0.3.0...v0.3.1) (2023-07-14)
 
 
