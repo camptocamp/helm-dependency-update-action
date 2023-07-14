@@ -1,37 +1,37 @@
 name: "Helm Dependencies Upgrader"
-description: "GitHub Action to upgrade Helm dependencies on a Helm folder."
+description: "GitHub Action to update Helm dependencies on a Helm folder."
 
 inputs:
   chart-path:
     description: "Path to the Helm chart folder."
     required: true
   readme-path:
-    description: "Path to a README.adoc with AsciiDoc attributes in the format ':<DEPENDENCY_NAME>-chart-version: <DEPENDENCY_VERSION>' that will be updated in the event of an upgrade."
+    description: "Path to a README.adoc with AsciiDoc attributes in the format ':<DEPENDENCY_NAME>-chart-version: <DEPENDENCY_VERSION>' that will be updated in the event of an update."
     required: false
     default: ""
-  upgrade-strategy:
+  update-strategy:
     description: "Upgrade strategy to use. Valid values are 'major', 'minor' or 'patch'."
     required: false
     default: "minor"
   excluded-dependencies:
-    description: "Comma-separated list of dependencies to exclude from upgrade."
+    description: "Comma-separated list of dependencies to exclude from the update."
     required: false
     default: ""
   dry-run:
-    description: "Run the action in dry-run mode to check possible upgrades but do not perform any upgrade."
+    description: "Run the action in dry-run mode to check possible updates but do not perform any update."
     required: false
     default: "false"
 
 outputs:
-  upgrade-type:
-    description: "String containing the upgrade type that was effectively performed. Outputs one of the following values: 'none', 'patch', 'minor' or 'major'."
+  update-type:
+    description: "String containing the update type that was effectively performed. Outputs one of the following values: 'none', 'patch', 'minor' or 'major'."
 
 runs:
   using: docker
   image: Dockerfile
   args:
     - ${{ inputs.chart-path }}
-    - ${{ inputs.upgrade-strategy }}
+    - ${{ inputs.update-strategy }}
     - ${{ inputs.excluded-dependencies }}
     - ${{ inputs.readme-path }}
     - ${{ inputs.dry-run }}

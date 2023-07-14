@@ -11,7 +11,7 @@ dry_run=$( [ $5 == "true" ] && echo "--dry-run" || echo "" )
 
 # Run the Python script.
 python3 /helm_dependency_bumper.py --chart $1 \
-                                   --upgrade-strategy $2 \
+                                   --update-strategy $2 \
                                    $exclude_dependency \
                                    $dry_run \
                                    $update_readme \
@@ -22,7 +22,7 @@ if [ $(echo $?) == 1 ]; then
   exit 1
 fi
 
-# Return the booleans indicating whether any dependency was upgraded or if there was a major upgrade.
+# Return the booleans indicating whether any dependency was updated or if there was a major update.
 echo $(cat output.txt) >> $GITHUB_OUTPUT
 rm output.txt
 
