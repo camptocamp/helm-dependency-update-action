@@ -169,13 +169,19 @@ def read_versions(chart: dict) -> dict:
     return deps_versions
 
 
-# FIXME Probably there is a more performance optimised way of doing this instead of nested for loops with a check on
-#  each one.
-def update_asciidoc_attributes(path: str, versions_dict: dict):
-    for x in versions_dict:
-        for line in fileinput.input(path, inplace=True):
-            if line.contains(f":{x}-chart-version:"):
-                print(f":{x}-chart-version: {versions_dict[x]}")
+def update_asciidoc_attributes(path: str, old_chart_dict: dict, new_chart_dict: dict):
+    with open(path, "r") as file_in:
+        file_in_memory = file_in.read()
+
+    for i in range(len(old_chart_dict['dependencies'])):
+        old_attribute = f":{old_chart_dict['dependencies'][i]['name']}-chart-version:" \
+                        f" {old_chart_dict['dependencies'][i]['version']}"
+        new_attribute = f":{new_chart_dict['dependencies'][i]['name']}-chart-version:" \
+                        f" {new_chart_dict['dependencies'][i]['version']}"
+        file_in_memory = file_in_memory.replace(old_attribute, new_attribute)
+
+    with open(path, "w") as file_out:
+        file_out.write(file_in_memory)
 
 
 if __name__ == "__main__":
@@ -226,7 +232,7 @@ if __name__ == "__main__":
 
     upgrade_type = check_upgrade_type(old_chart, new_chart)
 
-    # Create the file containing the outputs if demanded by the user. Does not run
+    # Create the file containing the outputs if demanded by the user.
     if not args.dry_run and args.output:
         output_path = str(Path(args.output).absolute())
         try:
@@ -237,12 +243,13 @@ if __name__ == "__main__":
             print(traceback.format_exc())
             sys.exit(1)
 
-    # Update a *.adoc if a path is given
+    # Update a *.adoc if a path is given. Does not run if no upgrade has been performed, hence the use of the
+    # `upgrade_type` boolean.
     if not args.dry_run and args.update_readme and upgrade_type:
         readme_path = str(Path(args.update_readme).absolute())
         versions = read_versions(new_chart)
         try:
-            update_asciidoc_attributes(readme_path, versions)
+            update_asciidoc_attributes(readme_path, old_chart, new_chart)
         except FileNotFoundError:
             print(f"Could not find the *.adoc file in '{args.update_readme}'.")
             sys.exit(1)
