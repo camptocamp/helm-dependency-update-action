@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.4.0](https://github.com/camptocamp/helm-dependency-update-action/compare/v0.3.3...v0.4.0) (2023-07-14)
+
+
+### ⚠ BREAKING CHANGES
+
+* change the naming scheme
+
+### Features
+
+* change the naming scheme ([c321a12](https://github.com/camptocamp/helm-dependency-update-action/commit/c321a12801f41b210685122ce1c5f1c1918388a9))
+
 ## [0.3.3](https://github.com/camptocamp/helm-dependency-upgrade-action/compare/v0.3.2...v0.3.3) (2023-07-14)
 
 
