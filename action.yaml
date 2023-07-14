@@ -30,8 +30,8 @@ runs:
   using: docker
   image: Dockerfile
   args:
-    - ${{ inputs.dry-run }}
-    - ${{ inputs.readme-path }}
     - ${{ inputs.chart-path }}
     - ${{ inputs.upgrade-strategy }}
     - ${{ inputs.excluded-dependencies }}
+    - ${{ inputs.readme-path }}
+    - ${{ inputs.dry-run }}
