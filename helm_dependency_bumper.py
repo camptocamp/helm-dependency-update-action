@@ -5,7 +5,6 @@ Simple Python script that is used in a GitHub Action to automatically bump chart
 from enum import IntEnum
 from pathlib import Path
 import argparse
-import fileinput
 import os
 import subprocess
 import sys
@@ -162,14 +161,9 @@ def translate_upgrade_type(upgrade: UpgradeType) -> str:
             return "major"
 
 
-def read_versions(chart: dict) -> dict:
-    deps_versions = {}
-    for i, dependency in enumerate(chart['dependencies']):
-        deps_versions.update({f"{dependency['name']}": f"{dependency['version']}"})
-    return deps_versions
-
-
 def update_asciidoc_attributes(path: str, old_chart_dict: dict, new_chart_dict: dict):
+    sort_dependencies(old_chart_dict, new_chart_dict)
+
     with open(path, "r") as file_in:
         file_in_memory = file_in.read()
 
@@ -246,9 +240,8 @@ if __name__ == "__main__":
     # Update a *.adoc if a path is given. Does not run if no upgrade has been performed, hence the use of the
     # `upgrade_type` boolean.
     if not args.dry_run and args.update_readme and upgrade_type:
-        readme_path = str(Path(args.update_readme).absolute())
-        versions = read_versions(new_chart)
         try:
+            readme_path = str(Path(args.update_readme).absolute())
             update_asciidoc_attributes(readme_path, old_chart, new_chart)
         except FileNotFoundError:
             print(f"Could not find the *.adoc file in '{args.update_readme}'.")
