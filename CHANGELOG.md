@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.1](https://github.com/camptocamp/helm-dependency-upgrade-action/compare/v0.3.0...v0.3.1) (2023-07-14)
+
+
+### Bug Fixes
+
+* add missing output to the action.yaml ([db220be](https://github.com/camptocamp/helm-dependency-upgrade-action/commit/db220be7f54112bfeb66b61f4fca5658b05af837))
+
 ## [0.3.0](https://github.com/camptocamp/helm-dependency-upgrade-action/compare/v0.2.1...v0.3.0) (2023-07-14)
 
 
