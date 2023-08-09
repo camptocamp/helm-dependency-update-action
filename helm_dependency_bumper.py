@@ -98,7 +98,6 @@ def generate_updatecli_manifest(chart: dict, path: str, excluded_dependencies: l
                 "versionfilter": {
                     "kind": "semver",
                     "pattern": version,
-                    "strict": True
                 }
             }
         }
@@ -135,14 +134,15 @@ def check_update_type(old_chart_dict: dict, new_chart_dict: dict) -> UpdateType:
     update = UpdateType.NONE
 
     for i in range(len(old_chart_dict['dependencies'])):
-        if update < UpdateType.PATCH and int(old_chart_dict['dependencies'][i]['version'].split('.')[2]) < \
-                int(new_chart_dict['dependencies'][i]['version'].split('.')[2]):
+        # Remove any prefixes from the version that could cause issues when comparing the versions.
+        old_version = old_chart_dict['dependencies'][i]['version'].removeprefix('v')
+        new_version = new_chart_dict['dependencies'][i]['version'].removeprefix('v')
+
+        if update < UpdateType.PATCH and int(old_version.split('.')[2]) < int(new_version.split('.')[2]):
             update = UpdateType.PATCH
-        if update < UpdateType.MINOR and int(old_chart_dict['dependencies'][i]['version'].split('.')[1]) < \
-                int(new_chart_dict['dependencies'][i]['version'].split('.')[1]):
+        if update < UpdateType.MINOR and int(old_version.split('.')[1]) < int(new_version.split('.')[1]):
             update = UpdateType.MINOR
-        if update < UpdateType.MAJOR and int(old_chart_dict['dependencies'][i]['version'].split('.')[0]) < \
-                int(new_chart_dict['dependencies'][i]['version'].split('.')[0]):
+        if update < UpdateType.MAJOR and int(old_version.split('.')[0]) < int(new_version.split('.')[0]):
             # No need to continue testing if we already found out that there was a major update, so just return MAJOR.
             return UpdateType.MAJOR
 
@@ -169,9 +169,9 @@ def update_asciidoc_attributes(path: str, old_chart_dict: dict, new_chart_dict: 
 
     for i in range(len(old_chart_dict['dependencies'])):
         old_attribute = f":{old_chart_dict['dependencies'][i]['name']}-chart-version:" \
-                        f" {old_chart_dict['dependencies'][i]['version']}"
+                        f" {old_chart_dict['dependencies'][i]['version'].removeprefix('v')}"
         new_attribute = f":{new_chart_dict['dependencies'][i]['name']}-chart-version:" \
-                        f" {new_chart_dict['dependencies'][i]['version']}"
+                        f" {new_chart_dict['dependencies'][i]['version'].removeprefix('v')}"
         file_in_memory = file_in_memory.replace(old_attribute, new_attribute)
 
     with open(path, "w") as file_out:
