@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.1](https://github.com/camptocamp/helm-dependency-update-action/compare/v0.4.0...v0.4.1) (2023-08-09)
+
+
+### Bug Fixes
+
+* add support for charts indexes containing the v prefix in version ([#16](https://github.com/camptocamp/helm-dependency-update-action/issues/16)) ([ca7538a](https://github.com/camptocamp/helm-dependency-update-action/commit/ca7538a308b6a6f92aec038ba3f5c15999ae47da))
+
 ## [0.4.0](https://github.com/camptocamp/helm-dependency-update-action/compare/v0.3.3...v0.4.0) (2023-07-14)
 
 
