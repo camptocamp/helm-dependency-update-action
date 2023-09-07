@@ -6,20 +6,217 @@ The action is nothing but a Python wrapper that iterates over every dependency i
 
 == Usage
 
+=== Inputs
+
+[options="header"]
+|====
+| Inputs                  | Description                                                                                                                                                           | Required | Default  
+| `chart-path`            | Path to the Helm chart folder.                                                                                                                                        | Yes      |          
+| `readme-path`           | Path to a README.adoc with AsciiDoc attributes in the format `:<DEPENDENCY_NAME>-chart-version: <DEPENDENCY_VERSION>` that will be updated in the event of an update. | No       | `""`     
+| `update-strategy`       | Upgrade strategy to use. Valid values are `major`, `minor` or 'patch`.                                                                                                | No       | `"minor"`
+| `excluded-dependencies` | Comma-separated list of dependencies to exclude from the update.                                                                                                      | No       | `""`     
+| `dry-run`               | Run the action in dry-run mode to check possible updates but do not perform any update.                                                                               | No       | `false`  
+|====
+
+
+=== Outputs
+
+[options="header"]
+|====
+| Outputs                  | Description                                                                                                                                
+| `update-type`            | String containing the update type that was effectively performed. Outputs one of the following values: 'none', 'patch', 'minor' or 'major'.
+|====
+
+=== Example
+
 Below you will find a sample workflow that uses this action.
 
 [source,yaml]
 ----
+---
+name: "chart-update"
 
+on:
+  schedule:
+  - cron: "0 7 * * 1-5"
+  
+  workflow_dispatch:
+    inputs:
+      update-strategy:
+        description: "Update strategy to use. Valid values are 'patch', 'minor' or 'major'"
+        type: choice
+        options:
+        - "patch"
+        - "minor"
+        - "major"
+        required: true
+      excluded-dependencies:
+        description: "Comma-separated list of dependencies to exclude from the update (i.e. 'dependency1,dependency2,dependency3')"
+        type: string
+        required: false
+        default: ""
+      dry-run:
+        description: "Activate dry-run mode"
+        type: boolean
+        required: false
+        default: true
+
+# Define global settings for all the steps.
+env:
+  author: "github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>"
+
+jobs:
+  chart-update-schedule:
+    runs-on: ubuntu-latest
+    
+    if: ${{ github.event_name == 'schedule' }}
+
+    strategy:
+      matrix:
+        update-strategy: ["minor", "major"]
+
+    steps:
+    - name: "Check out the repository"
+      uses: actions/checkout@v4
+
+    - name: "Upgrade Helm chart dependencies"
+      id: deps-update
+      uses: camptocamp/helm-dependency-update-action@v0.4.1
+      with:
+        chart-path: "charts/argocd"
+        readme-path: "README.adoc"
+        update-strategy: "${{ matrix.update-strategy }}"
+
+    - name: "Create Pull Request for a minor/patch update"
+      if: ${{ steps.deps-update.outputs.update-type != 'none' && steps.deps-update.outputs.update-type != 'major' }}
+      id: minor-pr
+      uses: peter-evans/create-pull-request@v5
+      env:
+        pr-title: "feat(chart): ${{ steps.deps-update.outputs.update-type }} update of dependencies on argocd chart"
+        branch: "chart-autoupdate-${{ steps.deps-update.outputs.update-type }}-argocd"
+        labels: "chart-autoupdate-${{ steps.deps-update.outputs.update-type }}"
+      with:
+        commit-message: ${{ env.pr-title }}
+        author: ${{ env.author }}
+        committer: ${{ env.author }}
+        branch: "chart-autoupdate-${{ steps.deps-update.outputs.update-type }}-argocd"
+        title: ${{ env.pr-title }}
+        labels: "chart-autoupdate-${{ steps.deps-update.outputs.update-type }}"
+        body: |
+          :robot: I have updated the chart *beep* *boop*
+          ---
+
+          ## Description of the changes
+
+          This PR updates the dependencies of the **argocd** Helm chart.
+          
+          The maximum version bump was a **${{ steps.deps-update.outputs.update-type }}** step.
+
+    - name: "Create Pull Request for a major update"
+      if: ${{ steps.deps-update.outputs.update-type != 'none' && steps.deps-update.outputs.update-type == 'major' }}
+      id: major-pr
+      uses: peter-evans/create-pull-request@v5
+      env:
+        # This step does not have a branch and labels environment variable, because it is forcefully a major update, 
+        # unlike the previous step, which can either be a patch, minor or major update.
+        pr-title: "feat(chart)!: major update of dependencies on argocd chart"
+      with:
+        commit-message: ${{ env.pr-title }}
+        author: ${{ env.author }}
+        committer: ${{ env.author }}
+        branch: "chart-autoupdate-major-argocd"
+        title: ${{ env.pr-title }}
+        labels: "chart-autoupdate-major"
+        body: |
+          :robot: I have updated the chart *beep* *boop*
+          ---
+
+          ## Description of the changes
+
+          This PR updates the dependencies of the **argocd** Helm chart.
+
+          :warning: This was a **major** update! Please check the changelog of the updated dependencies and **take notice of any breaking changes before merging**. :warning:
+        
+  chart-update-manual:
+    runs-on: ubuntu-latest
+    
+    if: ${{ github.event_name == 'workflow_dispatch' }}
+
+    steps:
+    - name: "Check out the repository"
+      uses: actions/checkout@v4
+
+    - name: "Upgrade Helm chart dependencies"
+      id: deps-update
+      uses: camptocamp/helm-dependency-update-action@v0.4.1
+      with:
+        chart-path: "charts/argocd"
+        readme-path: "README.adoc"
+        excluded-dependencies: ${{ inputs.excluded-dependencies }}
+        update-strategy: "${{ inputs.update-strategy }}"
+        dry-run: "${{ inputs.dry-run }}"
+
+    - name: "Create Pull Request for a minor/patch update"
+      if: ${{ !inputs.dry-run && steps.deps-update.outputs.update-type != 'none' && steps.deps-update.outputs.update-type != 'major' }}
+      id: minor-pr
+      uses: peter-evans/create-pull-request@v5
+      env:
+        pr-title: "feat(chart): ${{ steps.deps-update.outputs.update-type }} update of dependencies on argocd chart"
+        branch: "chart-autoupdate-${{ steps.deps-update.outputs.update-type }}-argocd"
+        labels: "chart-autoupdate-${{ steps.deps-update.outputs.update-type }}"
+      with:
+        commit-message: ${{ env.pr-title }}
+        author: ${{ env.author }}
+        committer: ${{ env.author }}
+        branch: "chart-autoupdate-${{ steps.deps-update.outputs.update-type }}-argocd"
+        title: ${{ env.pr-title }}
+        labels: "chart-autoupdate-${{ steps.deps-update.outputs.update-type }}"
+        body: |
+          :robot: I have updated the chart *beep* *boop*
+          ---
+
+          ## Description of the changes
+
+          This PR updates the dependencies of the **argocd** Helm chart.
+          
+          The maximum version bump was a **${{ steps.deps-update.outputs.update-type }}** step.
+
+    - name: "Create Pull Request for a major update"
+      if: ${{ !inputs.dry-run && steps.deps-update.outputs.update-type != 'none' && steps.deps-update.outputs.update-type == 'major' }}
+      id: major-pr
+      uses: peter-evans/create-pull-request@v5
+      env:
+        # This step does not have a branch and labels environment variable, because it is forcefully a major update, 
+        # unlike the previous step, which can either be a patch, minor or major update.
+        pr-title: "feat(chart)!: major update of dependencies on argocd chart"
+      with:
+        commit-message: ${{ env.pr-title }}
+        author: ${{ env.author }}
+        committer: ${{ env.author }}
+        branch: "chart-autoupdate-major-argocd"
+        title: ${{ env.pr-title }}
+        labels: "chart-autoupdate-major"
+        body: |
+          :robot: I have updated the chart *beep* *boop*
+          ---
+
+          ## Description of the changes
+
+          This PR updates the dependencies of the **argocd** Helm chart.
+
+          :warning: This was a **major** update! Please check the changelog of the updated dependencies and **take notice of any breaking changes before merging**. :warning:
 ----
 
-// TODO Finish the usage documentation, list inputs and outputs, etc.
+=== Python script usage independently of the action
+
+It is possible to use the Python script without the said action, but it requires to have https://www.updatecli.io/[Updatecli] installed on the environment in which it is executed.
+
+For more information about the flags the script supports, you only have to run `python3 ./helm_dependency_bumper.py --help`.
 
 == Assumptions
 
 - The action expects a root path to a single chart and the directory must contain a `Chart.yaml` file.
 - The versions of the dependencies are expected to be in the format `x.x.x` without a `v` prefix and without any other characters like `^` or `~`.
-- It is possible to use the Python script without the said action, but it requires to have https://www.updatecli.io/[Updatecli] installed on the environment in which it is executed.
 
 == Acknowledgements
 
@@ -35,9 +232,3 @@ The following references were used to create this action:
 - https://docs.github.com/en/actions/creating-actions/metadata-syntax-for-github-actions
 - https://blog.promaton.com/how-to-set-up-automated-helm-chart-upgrades-e292192a9aad
 - https://pythonspeed.com/articles/activate-virtualenv-dockerfile/
-
-
-
-// TODO Add proper .gitignore
-// TODO Add proper changelog and release please process
-// TODO On caller workflow we need to add the conditional pull request step, input variable on workflow dispatch to dry-run, set update-strategy and set exclusions
