@@ -24,7 +24,7 @@ The action is nothing but a Python wrapper that iterates over every dependency i
 [options="header"]
 |====
 | Outputs                  | Description                                                                                                                                
-| `update-type`            | String containing the update type that was effectively performed. Outputs one of the following values: 'none', 'patch', 'minor' or 'major'.
+| `update-type`            | String containing the update type that was effectively performed. Outputs one of the following values: `none`, `patch`, `minor` or `major`.
 |====
 
 === Example
