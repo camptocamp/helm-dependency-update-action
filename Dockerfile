@@ -1,6 +1,6 @@
 FROM python:3.11-slim-bookworm
 
-ARG UPDATECLI_VERSION=0.54.0
+ARG UPDATECLI_VERSION=v0.54.0
 
 # Install required packages
 RUN apt-get update && \
@@ -9,7 +9,7 @@ RUN apt-get update && \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Updatecli
-RUN curl -sL -o /tmp/updatecli_amd64.deb https://github.com/updatecli/updatecli/releases/download/v0.54.0/updatecli_amd64.deb && \
+RUN curl -sL -o /tmp/updatecli_amd64.deb https://github.com/updatecli/updatecli/releases/download/$UPDATECLI_VERSION/updatecli_amd64.deb && \
     apt install /tmp/updatecli_amd64.deb
 
 # Create the virtualenv and add it to the path

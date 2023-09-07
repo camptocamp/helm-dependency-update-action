@@ -1,5 +1,5 @@
 name: "Helm Dependencies Upgrader"
-description: "GitHub Action to update Helm dependencies on a Helm folder."
+description: "GitHub Action to update Helm dependencies on a Helm chart."
 
 inputs:
   chart-path:
