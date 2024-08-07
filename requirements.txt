@@ -1,2 +1,2 @@
-pyaml==21.10.1
-PyYAML==6.0
+pyaml==24.7.0
+PyYAML==6.0.2
