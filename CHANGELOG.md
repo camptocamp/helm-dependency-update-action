@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.0](https://github.com/camptocamp/helm-dependency-update-action/compare/v0.4.1...v0.5.0) (2024-08-07)
+
+
+### Features
+
+* update Upgrade CLI and other dependencies ([0d58dad](https://github.com/camptocamp/helm-dependency-update-action/commit/0d58daddc47f2c4012c9a06ab061dafa8ad104b5))
+
 ## [0.4.1](https://github.com/camptocamp/helm-dependency-update-action/compare/v0.4.0...v0.4.1) (2023-08-09)
 
 
